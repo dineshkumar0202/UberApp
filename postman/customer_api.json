@@ -1,0 +1,56 @@
+{
+  "info": {
+    "name": "Ridoo Customer API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"John\",\"phone\":\"9876543210\",\"password\":\"password\",\"role\":\"customer\"}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone\":\"9876543210\",\"password\":\"password\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rides",
+      "item": [
+        {
+          "name": "Book Ride",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": "{{base_url}}/rides",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pickup_address\":\"Location A\",\"pickup_latitude\":12.9716,\"pickup_longitude\":77.5946,\"drop_address\":\"Location B\",\"drop_latitude\":12.9352,\"drop_longitude\":77.6245,\"ride_type\":\"economy\",\"payment_method\":\"cash\"}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:8000/api/v1"},
+    {"key": "token", "value": ""}
+  ]
+}

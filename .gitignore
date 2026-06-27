@@ -1,0 +1,63 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Dependencies
+/vendor/
+node_modules/
+
+# Laravel
+backend/storage/*.key
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*
+backend/public/hot
+backend/public/storage
+backend/.phpunit.result.cache
+
+# Flutter
+customer_app/.dart_tool/
+customer_app/.flutter-plugins
+customer_app/.flutter-plugins-dependencies
+customer_app/.packages
+customer_app/build/
+customer_app/.pub-cache/
+customer_app/.pub/
+customer_app/**/Generated.xcconfig
+customer_app/**/flutter_export_environment.sh
+
+driver_app/.dart_tool/
+driver_app/.flutter-plugins
+driver_app/.flutter-plugins-dependencies
+driver_app/.packages
+driver_app/build/
+driver_app/.pub-cache/
+driver_app/.pub/
+driver_app/**/Generated.xcconfig
+driver_app/**/flutter_export_environment.sh
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Database backups
+database_backup/*.sql
+database_backup/*.dump
+
+# Uploads
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep
+backend/storage/app/public/*
+
+# Logs
+*.log
+
+# Docker
+docker-compose.override.yml

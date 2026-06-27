@@ -1,0 +1,38 @@
+name: ridoo_customer
+description: Ridoo customer ride booking application.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.1
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+  firebase_core: ^2.24.2
+  firebase_messaging: ^14.7.10
+  web_socket_channel: ^2.4.1
+  google_maps_flutter: ^2.5.3
+  geolocator: ^10.1.0
+  google_fonts: ^6.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/animations/
+    - assets/audio/
+    - assets/fonts/
+    - assets/icons/
+    - assets/images/
+    - assets/lottie/
+    - assets/svg/
+    - assets/map_style/

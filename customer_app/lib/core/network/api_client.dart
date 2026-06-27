@@ -1,0 +1,48 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:ridoo_customer/core/config/app_config.dart';
+import 'package:ridoo_customer/core/storage/local_storage.dart';
+
+class ApiClient {
+  static const String baseUrl = AppConfig.apiBaseUrl;
+
+  static Map<String, String> _getHeaders() {
+    final token = LocalStorage.getToken();
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
+
+  static Future<http.Response> get(String path) async {
+    final url = Uri.parse('$baseUrl$path');
+    return await http.get(url, headers: _getHeaders());
+  }
+
+  static Future<http.Response> post(String path, Map<String, dynamic> body) async {
+    final url = Uri.parse('$baseUrl$path');
+    return await http.post(
+      url,
+      headers: _getHeaders(),
+      body: jsonEncode(body),
+    );
+  }
+
+  static Future<http.Response> put(String path, Map<String, dynamic> body) async {
+    final url = Uri.parse('$baseUrl$path');
+    return await http.put(
+      url,
+      headers: _getHeaders(),
+      body: jsonEncode(body),
+    );
+  }
+
+  static Future<http.Response> delete(String path) async {
+    final url = Uri.parse('$baseUrl$path');
+    return await http.delete(url, headers: _getHeaders());
+  }
+}

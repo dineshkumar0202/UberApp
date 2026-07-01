@@ -38,7 +38,7 @@ class DriverResource extends Resource
                     ->default(5.00)
                     ->disabled(),
 
-                Forms\Components\Section::make('Vehicle Information')
+                \Filament\Schemas\Components\Section::make('Vehicle Information')
                     ->relationship('vehicle')
                     ->schema([
                         Forms\Components\TextInput::make('make')

@@ -18,76 +18,94 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  int _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final rideProvider = Provider.of<DriverRideProvider>(context);
-    
     final user = authProvider.user;
     final isOnline = rideProvider.isOnline;
     final activeRide = rideProvider.activeRide;
     final pendingRequests = rideProvider.pendingRequests;
+    
+    final isApproved = user?['driver']?['is_approved'] == true || 
+                       user?['driver']?['is_approved'] == 1 || 
+                       user?['driver']?['is_approved'] == '1';
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        title: const Text(
-          'Ridoo Driver',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await rideProvider.toggleOnlineStatus(false);
-              await authProvider.logout();
-            },
-            icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
+      appBar: _currentIndex == 0
+          ? AppBar(
+              backgroundColor: Colors.black,
+              elevation: 0,
+              title: const Text(
+                'Ridoo Driver',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () async {
+                    await rideProvider.toggleOnlineStatus(false);
+                    await authProvider.logout();
+                  },
+                  icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
+                ),
+              ],
+            )
+          : null,
+      body: _currentIndex == 0
+          ? Stack(
+              children: [
           // Background/Body
           SafeArea(
             child: Column(
               children: [
                 // Status bar
                 Container(
-                  color: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  color: isOnline ? Colors.green.shade700 : const Color(0xFFE05A00),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: isOnline ? Colors.green : Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            isOnline ? 'ONLINE' : 'OFFLINE',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
+                      Icon(
+                        isOnline ? Icons.check_circle_outline_rounded : Icons.warning_amber_rounded,
+                        color: Colors.white,
+                        size: 20,
                       ),
-                      Switch.adaptive(
-                        value: isOnline,
-                        activeColor: Colors.green,
-                        onChanged: (value) async {
-                          await rideProvider.toggleOnlineStatus(value);
-                        },
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          isOnline
+                              ? 'You are online! Looking for ride requests...'
+                              : 'You are offline! Go online to start accepting jobs.',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        height: 28,
+                        child: Switch.adaptive(
+                          value: isOnline,
+                          activeColor: Colors.white,
+                          activeTrackColor: Colors.green.shade400,
+                          onChanged: (value) async {
+                            if (!isApproved) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Account pending admin approval. You cannot go online.'),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                              return;
+                            }
+                            await rideProvider.toggleOnlineStatus(value);
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -104,8 +122,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundColor: const Color(0xFF6C4DFF).withOpacity(0.1),
-                              child: const Icon(Icons.person_rounded, size: 36, color: Color(0xFF6C4DFF)),
+                              backgroundColor: const Color(0xFFF7C815).withOpacity(0.15),
+                              child: const Icon(Icons.person_rounded, size: 36, color: Colors.black87),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -132,44 +150,102 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
-
-                        // Navigation Grid Section
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
-                            ],
+                        // Approval Banner or Pending Box (Replaced Navigation Grid)
+                        if (isApproved) ...[
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF25A365).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFF25A365).withOpacity(0.3), width: 1.5),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF25A365),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.check_circle_rounded, color: Colors.white, size: 22),
+                                ),
+                                const SizedBox(width: 16),
+                                const Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Approved Partner',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF1E7E4E),
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      SizedBox(height: 2),
+                                      Text(
+                                        'congragilation your approve Driver in Rido',
+                                        style: TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: 13,
+                                          height: 1.3,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildQuickLink(
-                                icon: Icons.account_balance_wallet_rounded,
-                                label: 'Wallet',
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletScreen())),
-                              ),
-                              _buildQuickLink(
-                                icon: Icons.star_rounded,
-                                label: 'Ratings',
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RatingsScreen())),
-                              ),
-                              _buildQuickLink(
-                                icon: Icons.help_outline_rounded,
-                                label: 'Support',
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportScreen())),
-                              ),
-                              _buildQuickLink(
-                                icon: Icons.person_rounded,
-                                label: 'Profile',
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
-                              ),
-                            ],
+                        ] else ...[
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.orange.withOpacity(0.3), width: 1.5),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.orange,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.hourglass_empty_rounded, color: Colors.white, size: 22),
+                                ),
+                                const SizedBox(width: 16),
+                                const Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Approval Pending',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.orange,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      SizedBox(height: 2),
+                                      Text(
+                                        'Your documents are under review. Once approved, you can start accepting jobs.',
+                                        style: TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: 13,
+                                          height: 1.3,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                         const SizedBox(height: 28),
 
                         // Earnings Grid (only shown if not in active ride)
@@ -189,7 +265,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   title: 'Earnings',
                                   value: '₹1,240',
                                   icon: Icons.currency_rupee,
-                                  color: Colors.green,
+                                  color: Colors.green.shade700,
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -198,7 +274,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   title: 'Rides',
                                   value: '8 Completed',
                                   icon: Icons.directions_car,
-                                  color: Colors.indigo,
+                                  color: Colors.black87,
                                 ),
                               ),
                             ],
@@ -211,7 +287,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   title: 'Rating',
                                   value: '4.95 ★',
                                   icon: Icons.star,
-                                  color: Colors.amber,
+                                  color: const Color(0xFFF7C815),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -238,18 +314,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   color: Colors.black.withOpacity(0.04),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
+                                  spreadRadius: 1,
                                 ),
                               ],
+                              border: Border.all(color: Colors.grey[100]!),
                             ),
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(24),
                             child: Column(
                               children: [
-                                const Icon(
-                                  Icons.explore_outlined,
-                                  size: 48,
-                                  color: Colors.grey,
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF7C815).withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.explore_outlined,
+                                    size: 36,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 16),
                                 const Text(
                                   'Looking for Ride Requests',
                                   style: TextStyle(
@@ -257,7 +342,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 8),
                                 Text(
                                   isOnline
                                       ? 'Requests will show up here automatically. Coordinate: ${rideProvider.currentLat.toStringAsFixed(4)}, ${rideProvider.currentLng.toStringAsFixed(4)}'
@@ -266,6 +351,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey[500],
+                                    height: 1.3,
                                   ),
                                 ),
                               ],
@@ -329,6 +415,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ride: activeRide,
               ),
             ),
+              ],
+            )
+          : (_currentIndex == 1
+              ? const WalletScreen()
+              : (_currentIndex == 2
+                  ? const RatingsScreen()
+                  : const ProfileScreen())),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_balance_wallet_rounded),
+            label: 'Wallet',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.star_rounded),
+            label: 'Ratings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_rounded),
+            label: 'Profile',
+          ),
         ],
       ),
     );
@@ -351,6 +472,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(color: Colors.grey[100]!),
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -387,10 +509,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF6C4DFF).withOpacity(0.08),
+              color: const Color(0xFFF7C815).withOpacity(0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: const Color(0xFF6C4DFF), size: 22),
+            child: Icon(icon, color: Colors.black87, size: 22),
           ),
           const SizedBox(height: 6),
           Text(

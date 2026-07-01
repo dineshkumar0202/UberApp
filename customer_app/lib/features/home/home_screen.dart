@@ -24,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   GoogleMapController? _mapController;
+  int _currentIndex = 0;
   LatLng? _liveLatLng;
   bool _showLocationPicker = false;
   Map<String, dynamic>? _pickupLocation;
@@ -32,18 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isChoosingStop = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  final List<Map<String, dynamic>> _recentSearches = [
-    {
-      'address': 'Koramangala Club, Bengaluru',
-      'latitude': 12.9348,
-      'longitude': 77.6189,
-    },
-    {
-      'address': 'Commercial Street, Tasker Town',
-      'latitude': 12.9822,
-      'longitude': 77.6083,
-    },
-  ];
+  final List<Map<String, dynamic>> _recentSearches = [];
 
   @override
   void initState() {
@@ -63,17 +53,18 @@ class _HomeScreenState extends State<HomeScreen> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) return;
       }
-      
+
       if (permission == LocationPermission.deniedForever) return;
 
       final Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high
+        desiredAccuracy: LocationAccuracy.high,
       );
 
       setState(() {
         _liveLatLng = LatLng(position.latitude, position.longitude);
         _pickupLocation = {
-          'address': 'Current Location (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})',
+          'address':
+              'Current Location (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})',
           'latitude': position.latitude,
           'longitude': position.longitude,
         };
@@ -94,7 +85,12 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateDistance(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
     final double dLat = (lat2 - lat1).abs();
     final double dLon = (lon2 - lon1).abs();
     return double.parse((dLat * 111 + dLon * 85 + 1.2).toStringAsFixed(2));
@@ -104,7 +100,9 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final bytes = base64Decode(encodedPolyline);
       final decodedJson = jsonDecode(utf8.decode(bytes)) as List;
-      return decodedJson.map((coord) => LatLng(coord[0] as double, coord[1] as double)).toList();
+      return decodedJson
+          .map((coord) => LatLng(coord[0] as double, coord[1] as double))
+          .toList();
     } catch (e) {
       return [];
     }
@@ -137,7 +135,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Widget _buildHeaderButton({required IconData icon, required Color color, required VoidCallback onTap}) {
+  Widget _buildHeaderButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -151,7 +153,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSavedPlaceChip({required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildSavedPlaceChip({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -188,7 +194,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildGoogleMap(Map<String, dynamic>? activeRide, RideProvider rideProvider) {
+  Widget _buildGoogleMap(
+    Map<String, dynamic>? activeRide,
+    RideProvider rideProvider,
+  ) {
     final Set<Marker> markers = {};
     final Set<Polyline> polylines = {};
     LatLng center = const LatLng(12.971598, 77.594562); // Bengaluru MG Road
@@ -206,15 +215,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final driver = activeRide['driver'];
       if (driver != null) {
-        final drLat = double.tryParse(driver['current_latitude']?.toString() ?? '');
-        final drLng = double.tryParse(driver['current_longitude']?.toString() ?? '');
+        final drLat = double.tryParse(
+          driver['current_latitude']?.toString() ?? '',
+        );
+        final drLng = double.tryParse(
+          driver['current_longitude']?.toString() ?? '',
+        );
         if (drLat != null && drLng != null) {
           markers.add(
             Marker(
               markerId: const MarkerId('driver'),
               position: LatLng(drLat, drLng),
               infoWindow: const InfoWindow(title: 'Driver Location'),
-              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueYellow,
+              ),
             ),
           );
         }
@@ -235,7 +250,9 @@ class _HomeScreenState extends State<HomeScreen> {
           markerId: const MarkerId('pickup'),
           position: LatLng(pLat, pLng),
           infoWindow: InfoWindow(title: 'Pickup: $pAddr'),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueGreen,
+          ),
         ),
       );
 
@@ -271,21 +288,31 @@ class _HomeScreenState extends State<HomeScreen> {
             'title': 'Far Driver (Ridoo Premium)',
             'latitude': pLat + 0.035, // ~4km away
             'longitude': pLng + 0.025,
-          }
+          },
         ];
 
         for (final dr in allPotentialDrivers) {
-          final double dist = _calculateDistance(pLat, pLng, dr['latitude'] as double, dr['longitude'] as double);
+          final double dist = _calculateDistance(
+            pLat,
+            pLng,
+            dr['latitude'] as double,
+            dr['longitude'] as double,
+          );
           if (dist <= 2.0) {
             markers.add(
               Marker(
                 markerId: MarkerId(dr['id']),
-                position: LatLng(dr['latitude'] as double, dr['longitude'] as double),
+                position: LatLng(
+                  dr['latitude'] as double,
+                  dr['longitude'] as double,
+                ),
                 infoWindow: InfoWindow(
                   title: 'Available (${dr['title']})',
                   snippet: '${dist.toStringAsFixed(2)} km away',
                 ),
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                  BitmapDescriptor.hueYellow,
+                ),
               ),
             );
           }
@@ -297,9 +324,14 @@ class _HomeScreenState extends State<HomeScreen> {
       markers.add(
         Marker(
           markerId: const MarkerId('stop'),
-          position: LatLng(_stopLocation!['latitude'] as double, _stopLocation!['longitude'] as double),
+          position: LatLng(
+            _stopLocation!['latitude'] as double,
+            _stopLocation!['longitude'] as double,
+          ),
           infoWindow: InfoWindow(title: 'Stop: ${_stopLocation!['address']}'),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueOrange,
+          ),
         ),
       );
     }
@@ -324,9 +356,18 @@ class _HomeScreenState extends State<HomeScreen> {
           if (_stopLocation != null && activeRide == null) {
             polylinePoints = [
               LatLng(pLat, pLng),
-              LatLng((pLat + (_stopLocation!['latitude'] as double)) / 2 + 0.0005, (pLng + (_stopLocation!['longitude'] as double)) / 2 - 0.0005),
-              LatLng(_stopLocation!['latitude'] as double, _stopLocation!['longitude'] as double),
-              LatLng(((_stopLocation!['latitude'] as double) + dLat) / 2 + 0.0005, ((_stopLocation!['longitude'] as double) + dLng) / 2 - 0.0005),
+              LatLng(
+                (pLat + (_stopLocation!['latitude'] as double)) / 2 + 0.0005,
+                (pLng + (_stopLocation!['longitude'] as double)) / 2 - 0.0005,
+              ),
+              LatLng(
+                _stopLocation!['latitude'] as double,
+                _stopLocation!['longitude'] as double,
+              ),
+              LatLng(
+                ((_stopLocation!['latitude'] as double) + dLat) / 2 + 0.0005,
+                ((_stopLocation!['longitude'] as double) + dLng) / 2 - 0.0005,
+              ),
               LatLng(dLat, dLng),
             ];
           } else {
@@ -350,10 +391,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return GoogleMap(
-      initialCameraPosition: CameraPosition(
-        target: center,
-        zoom: 13,
-      ),
+      initialCameraPosition: CameraPosition(target: center, zoom: 13),
       markers: markers,
       polylines: polylines,
       myLocationEnabled: true,
@@ -364,10 +402,18 @@ class _HomeScreenState extends State<HomeScreen> {
         _mapController = controller;
         double? cpLat, cpLng, cdLat, cdLng;
         if (activeRide != null) {
-          cpLat = double.tryParse(activeRide['pickup_latitude']?.toString() ?? '');
-          cpLng = double.tryParse(activeRide['pickup_longitude']?.toString() ?? '');
-          cdLat = double.tryParse(activeRide['drop_latitude']?.toString() ?? '');
-          cdLng = double.tryParse(activeRide['drop_longitude']?.toString() ?? '');
+          cpLat = double.tryParse(
+            activeRide['pickup_latitude']?.toString() ?? '',
+          );
+          cpLng = double.tryParse(
+            activeRide['pickup_longitude']?.toString() ?? '',
+          );
+          cdLat = double.tryParse(
+            activeRide['drop_latitude']?.toString() ?? '',
+          );
+          cdLng = double.tryParse(
+            activeRide['drop_longitude']?.toString() ?? '',
+          );
         } else {
           cpLat = _pickupLocation?['latitude'] as double?;
           cpLng = _pickupLocation?['longitude'] as double?;
@@ -406,12 +452,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final isSearching = rideProvider.isSearching;
 
     return Scaffold(
-      body: Stack(
-        children: [
+      body: _currentIndex == 0
+          ? Stack(
+              children: [
           // 1. Full-screen map background
-          Positioned.fill(
-            child: _buildGoogleMap(activeRide, rideProvider),
-          ),
+          Positioned.fill(child: _buildGoogleMap(activeRide, rideProvider)),
 
           // Live Location floating trigger button
           Positioned(
@@ -424,8 +469,14 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: Colors.white,
               mini: true,
               elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              child: const Icon(Icons.my_location_rounded, color: AppColors.primary, size: 22),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.my_location_rounded,
+                color: AppColors.primary,
+                size: 22,
+              ),
             ),
           ),
 
@@ -437,12 +488,18 @@ class _HomeScreenState extends State<HomeScreen> {
               right: 0,
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   child: Column(
                     children: [
                       // Translucent Greeting Card
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(20),
@@ -492,7 +549,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const WalletScreen()),
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const WalletScreen(),
+                                      ),
                                     );
                                   },
                                 ),
@@ -503,7 +563,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const RideHistoryScreen()),
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const RideHistoryScreen(),
+                                      ),
                                     );
                                   },
                                 ),
@@ -514,7 +577,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const SupportScreen()),
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const SupportScreen(),
+                                      ),
                                     );
                                   },
                                 ),
@@ -525,7 +591,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const SosScreen()),
+                                      MaterialPageRoute(
+                                        builder: (context) => const SosScreen(),
+                                      ),
                                     );
                                   },
                                 ),
@@ -536,7 +604,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ProfileScreen(),
+                                      ),
                                     );
                                   },
                                 ),
@@ -559,7 +630,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       GestureDetector(
                         onTap: _showMockLocationPicker,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
@@ -573,7 +647,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.search_rounded, color: AppColors.primary, size: 24),
+                              const Icon(
+                                Icons.search_rounded,
+                                color: AppColors.primary,
+                                size: 24,
+                              ),
                               const SizedBox(width: 12),
                               Text(
                                 'Where to?',
@@ -594,19 +672,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           _buildSavedPlaceChip(
                             icon: Icons.home_rounded,
                             label: 'Home',
-                            onTap: () => _selectSavedPlace(rideProvider.mockLocations[3]), // MG Road
+                            onTap: () => _selectSavedPlace(
+                              rideProvider.mockLocations[3],
+                            ), // MG Road
                           ),
                           const SizedBox(width: 8),
                           _buildSavedPlaceChip(
                             icon: Icons.work_rounded,
                             label: 'Work',
-                            onTap: () => _selectSavedPlace(rideProvider.mockLocations[2]), // Indiranagar
+                            onTap: () => _selectSavedPlace(
+                              rideProvider.mockLocations[2],
+                            ), // Indiranagar
                           ),
                           const SizedBox(width: 8),
                           _buildSavedPlaceChip(
                             icon: Icons.flight_takeoff_rounded,
                             label: 'Airport',
-                            onTap: () => _selectSavedPlace(rideProvider.mockLocations[0]), // BLR Airport
+                            onTap: () => _selectSavedPlace(
+                              rideProvider.mockLocations[0],
+                            ), // BLR Airport
                           ),
                         ],
                       ),
@@ -647,7 +731,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.white.withOpacity(0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.percent_rounded, color: Colors.white, size: 28),
+                      child: const Icon(
+                        Icons.percent_rounded,
+                        color: Colors.white,
+                        size: 28,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -675,7 +763,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                   ],
                 ),
               ),
@@ -686,9 +778,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Positioned.fill(
               child: GestureDetector(
                 onTap: _resetFlow,
-                child: Container(
-                  color: Colors.black.withOpacity(0.4),
-                ),
+                child: Container(color: Colors.black.withOpacity(0.4)),
               ),
             ),
             Positioned(
@@ -713,11 +803,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         const Text(
                           'Where to?',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: -0.5),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.5,
+                          ),
                         ),
                         IconButton(
                           onPressed: _resetFlow,
-                          icon: const Icon(Icons.close_rounded, color: Colors.grey),
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
@@ -727,21 +824,32 @@ class _HomeScreenState extends State<HomeScreen> {
                         _checkAndGetLiveLocation();
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Resetting pickup to your current live GPS location...'),
+                            content: Text(
+                              'Resetting pickup to your current live GPS location...',
+                            ),
                             duration: Duration(seconds: 1),
                           ),
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.green.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
+                          border: Border.all(
+                            color: Colors.green.withValues(alpha: 0.2),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.my_location_rounded, color: Colors.green, size: 18),
+                            const Icon(
+                              Icons.my_location_rounded,
+                              color: Colors.green,
+                              size: 18,
+                            ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
@@ -749,7 +857,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   Text(
                                     'Pickup: ${_pickupLocation!['address']}',
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.green),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.green,
+                                    ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -757,7 +869,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     const SizedBox(height: 2),
                                     Text(
                                       '${_calculateDistance(_liveLatLng!.latitude, _liveLatLng!.longitude, _pickupLocation!['latitude'] as double, _pickupLocation!['longitude'] as double).toStringAsFixed(2)} km from live location',
-                                      style: TextStyle(fontSize: 11, color: Colors.green[700], fontWeight: FontWeight.w500),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.green[700],
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ],
                                 ],
@@ -765,14 +881,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.green,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: const Text(
                                 'GPS',
-                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ],
@@ -784,9 +907,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Display nearby drivers sorted by distance
                     Builder(
                       builder: (context) {
-                        final double? pLat = _pickupLocation?['latitude'] as double?;
-                        final double? pLng = _pickupLocation?['longitude'] as double?;
-                        if (pLat == null || pLng == null) return const SizedBox();
+                        final double? pLat =
+                            _pickupLocation?['latitude'] as double?;
+                        final double? pLng =
+                            _pickupLocation?['longitude'] as double?;
+                        if (pLat == null || pLng == null)
+                          return const SizedBox();
 
                         final List<Map<String, dynamic>> allPotentialDrivers = [
                           {
@@ -818,27 +944,43 @@ class _HomeScreenState extends State<HomeScreen> {
                             'latitude': pLat + 0.035, // ~4km away
                             'longitude': pLng + 0.025,
                             'icon': Icons.directions_car_rounded,
-                          }
+                          },
                         ];
 
                         // Calculate distances and filter within 2km
-                        final List<Map<String, dynamic>> nearbyDrivers = allPotentialDrivers
-                            .map((dr) {
-                              final double dist = _calculateDistance(pLat, pLng, dr['latitude'] as double, dr['longitude'] as double);
-                              return {...dr, 'distance': dist};
-                            })
-                            .where((dr) => (dr['distance'] as double) <= 2.0)
-                            .toList();
+                        final List<Map<String, dynamic>> nearbyDrivers =
+                            allPotentialDrivers
+                                .map((dr) {
+                                  final double dist = _calculateDistance(
+                                    pLat,
+                                    pLng,
+                                    dr['latitude'] as double,
+                                    dr['longitude'] as double,
+                                  );
+                                  return {...dr, 'distance': dist};
+                                })
+                                .where(
+                                  (dr) => (dr['distance'] as double) <= 2.0,
+                                )
+                                .toList();
 
                         // Sort by distance (ascending)
-                        nearbyDrivers.sort((a, b) => (a['distance'] as double).compareTo(b['distance'] as double));
+                        nearbyDrivers.sort(
+                          (a, b) => (a['distance'] as double).compareTo(
+                            b['distance'] as double,
+                          ),
+                        );
 
                         if (nearbyDrivers.isEmpty) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),
                             child: Text(
                               'No drivers available nearby (within 2 km)',
-                              style: TextStyle(fontSize: 12, color: Colors.red[600], fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.red[600],
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           );
                         }
@@ -849,11 +991,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                const Icon(Icons.airport_shuttle_rounded, size: 14, color: AppColors.primary),
+                                const Icon(
+                                  Icons.airport_shuttle_rounded,
+                                  size: 14,
+                                  color: AppColors.primary,
+                                ),
                                 const SizedBox(width: 6),
                                 Text(
                                   'DRIVERS WITHIN 2 KM (${nearbyDrivers.length} Available)',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 10, letterSpacing: 0.5),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                    fontSize: 10,
+                                    letterSpacing: 0.5,
+                                  ),
                                 ),
                               ],
                             ),
@@ -868,29 +1019,48 @@ class _HomeScreenState extends State<HomeScreen> {
                                   final double dist = dr['distance'] as double;
                                   return Container(
                                     margin: const EdgeInsets.only(right: 10),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.grey[50],
-                                      border: Border.all(color: Colors.grey[200]!),
+                                      border: Border.all(
+                                        color: Colors.grey[200]!,
+                                      ),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(dr['icon'] as IconData, size: 24, color: AppColors.primary),
+                                        Icon(
+                                          dr['icon'] as IconData,
+                                          size: 24,
+                                          color: AppColors.primary,
+                                        ),
                                         const SizedBox(width: 8),
                                         Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             Text(
                                               dr['title'],
-                                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.charcoalBlack),
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.charcoalBlack,
+                                              ),
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
                                               '${dist.toStringAsFixed(2)} km away',
-                                              style: TextStyle(fontSize: 10, color: Colors.grey[600], fontWeight: FontWeight.w600),
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey[600],
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -908,19 +1078,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     if (_stopLocation != null) ...[
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.orange.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.location_on_rounded, color: Colors.orange, size: 18),
+                            const Icon(
+                              Icons.location_on_rounded,
+                              color: Colors.orange,
+                              size: 18,
+                            ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
                                 'Stop: ${_stopLocation!['address']}',
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.orange),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.orange,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -928,7 +1109,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             IconButton(
                               constraints: const BoxConstraints(),
                               padding: EdgeInsets.zero,
-                              icon: const Icon(Icons.close_rounded, color: Colors.grey, size: 18),
+                              icon: const Icon(
+                                Icons.close_rounded,
+                                color: Colors.grey,
+                                size: 18,
+                              ),
                               onPressed: () {
                                 setState(() {
                                   _stopLocation = null;
@@ -954,7 +1139,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             });
                           },
                           icon: const Icon(Icons.add, size: 16),
-                          label: const Text('Add Stop', style: TextStyle(fontWeight: FontWeight.bold)),
+                          label: const Text(
+                            'Add Stop',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           style: TextButton.styleFrom(
                             foregroundColor: AppColors.primary,
                             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -974,18 +1162,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
                       },
                       decoration: InputDecoration(
-                        hintText: _isChoosingStop ? 'Enter stop address...' : 'Enter drop-off address...',
-                        prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary),
+                        hintText: _isChoosingStop
+                            ? 'Enter stop address...'
+                            : 'Enter drop-off address...',
+                        prefixIcon: const Icon(
+                          Icons.search_rounded,
+                          color: AppColors.primary,
+                        ),
                         filled: true,
                         fillColor: Colors.grey[100],
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         suffixIcon: _isChoosingStop
                             ? IconButton(
-                                icon: const Icon(Icons.close_rounded, color: Colors.grey),
+                                icon: const Icon(
+                                  Icons.close_rounded,
+                                  color: Colors.grey,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     _isChoosingStop = false;
@@ -997,20 +1196,111 @@ class _HomeScreenState extends State<HomeScreen> {
                             : null,
                       ),
                     ),
+                    if (_recentSearches.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'RECENT SEARCHES',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                              fontSize: 11,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _recentSearches.clear();
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Text(
+                              'Clear All',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.redAccent,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      ..._recentSearches
+                          .take(3)
+                          .map(
+                            (loc) => ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                              leading: const Icon(
+                                Icons.history_rounded,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                              title: Text(
+                                loc['address'],
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  if (_isChoosingStop) {
+                                    _stopLocation = loc;
+                                    _isChoosingStop = false;
+                                    _searchController.clear();
+                                    _searchQuery = '';
+                                  } else {
+                                    _dropLocation = loc;
+                                    _searchController.clear();
+                                    _searchQuery = '';
+                                    _showLocationPicker = false;
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                    ],
                     const SizedBox(height: 16),
                     const Text(
                       'SUGGESTIONS',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 11, letterSpacing: 0.5),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                        fontSize: 11,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Builder(
                       builder: (context) {
-                        final List<Map<String, dynamic>> filteredLocations = rideProvider.mockLocations
-                            .where((loc) => loc['address'] != _pickupLocation!['address'])
-                            .where((loc) => loc['address'].toString().toLowerCase().contains(_searchQuery.toLowerCase()))
-                            .toList();
+                        final List<Map<String, dynamic>> filteredLocations =
+                            rideProvider.mockLocations
+                                .where(
+                                  (loc) =>
+                                      loc['address'] !=
+                                      _pickupLocation!['address'],
+                                )
+                                .where(
+                                  (loc) => loc['address']
+                                      .toString()
+                                      .toLowerCase()
+                                      .contains(_searchQuery.toLowerCase()),
+                                )
+                                .toList();
 
-                        if (filteredLocations.isEmpty && _searchQuery.trim().isNotEmpty) {
+                        if (filteredLocations.isEmpty &&
+                            _searchQuery.trim().isNotEmpty) {
                           filteredLocations.add({
                             'address': _searchQuery.trim(),
                             'latitude': 12.9716 + 0.005,
@@ -1022,24 +1312,38 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 160,
                           child: ListView.separated(
                             itemCount: filteredLocations.length,
-                            separatorBuilder: (context, index) => const Divider(height: 1),
+                            separatorBuilder: (context, index) =>
+                                const Divider(height: 1),
                             itemBuilder: (context, index) {
                               final loc = filteredLocations[index];
-                              final isCustom = loc['address'] == _searchQuery.trim();
+                              final isCustom =
+                                  loc['address'] == _searchQuery.trim();
                               return ListTile(
                                 contentPadding: EdgeInsets.zero,
                                 leading: Icon(
-                                  isCustom ? Icons.add_location_alt_rounded : Icons.location_on_outlined,
-                                  color: isCustom ? AppColors.primary : Colors.redAccent,
+                                  isCustom
+                                      ? Icons.add_location_alt_rounded
+                                      : Icons.location_on_outlined,
+                                  color: isCustom
+                                      ? AppColors.primary
+                                      : Colors.redAccent,
                                 ),
                                 title: Text(
                                   loc['address'],
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 onTap: () {
                                   setState(() {
+                                    if (!_recentSearches.any(
+                                      (r) => r['address'] == loc['address'],
+                                    )) {
+                                      _recentSearches.insert(0, loc);
+                                    }
                                     if (_isChoosingStop) {
                                       _stopLocation = loc;
                                       _isChoosingStop = false;
@@ -1057,7 +1361,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                           ),
                         );
-                      }
+                      },
                     ),
                   ],
                 ),
@@ -1066,13 +1370,17 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
 
           // 5. Booking Estimating Bottom Sheet
-          if (_pickupLocation != null && _dropLocation != null && activeRide == null && !isSearching)
+          if (_pickupLocation != null &&
+              _dropLocation != null &&
+              activeRide == null &&
+              !isSearching)
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
               child: BookingSheet(
-                distanceKm: _calculateDistance(
+                distanceKm:
+                    _calculateDistance(
                       _pickupLocation!['latitude'] as double,
                       _pickupLocation!['longitude'] as double,
                       _dropLocation!['latitude'] as double,
@@ -1115,7 +1423,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 dropAddress: _dropLocation?['address'] ?? 'Destination',
                 onCancel: () async {
                   if (activeRide != null) {
-                    await rideProvider.cancelRide('User cancelled while searching');
+                    await rideProvider.cancelRide(
+                      'User cancelled while searching',
+                    );
                   }
                   _resetFlow();
                 },
@@ -1128,10 +1438,43 @@ class _HomeScreenState extends State<HomeScreen> {
               bottom: 0,
               left: 0,
               right: 0,
-              child: ActiveRideSheet(
-                ride: activeRide,
-              ),
+              child: ActiveRideSheet(ride: activeRide),
             ),
+              ],
+            )
+          : (_currentIndex == 1
+              ? const WalletScreen()
+              : (_currentIndex == 2
+                  ? const RideHistoryScreen()
+                  : const ProfileScreen())),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_balance_wallet_rounded),
+            label: 'Wallet',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history_rounded),
+            label: 'History',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_rounded),
+            label: 'Profile',
+          ),
         ],
       ),
     );

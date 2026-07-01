@@ -89,7 +89,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> register({
     required String name,
     required String email,
-    required String phone,
+    String? phone,
     required String password,
   }) async {
     _setLoading(true);
@@ -121,12 +121,17 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> login(String phone, String password) async {
+  Future<bool> login({String? email, String? phone, required String password}) async {
     _setLoading(true);
     _setError(null);
     try {
       final fcmToken = LocalStorage.getFcmToken();
-      final response = await _authService.login(phone, password, fcmToken);
+      final response = await _authService.login(
+        email: email,
+        phone: phone,
+        password: password,
+        fcmToken: fcmToken,
+      );
 
       _token = response['token'];
       _user = response['user'];

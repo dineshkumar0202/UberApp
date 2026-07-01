@@ -82,22 +82,39 @@ class DriverRideProvider extends ChangeNotifier {
     _pollingTimer = null;
   }
 
-  void _initSocketConnection() {
+  Future<void> _initSocketConnection() async {
     final token = LocalStorage.getToken();
-    final user = LocalStorage.getUser();
+    var user = LocalStorage.getUser();
     
-    if (token != null && user != null && user['driver'] != null) {
-      _socketService.connect(token);
-      _socketService.subscribeToDriver(
-        user['driver']['id'],
-        onRideRequested: (rideData) {
-          final alreadyExists = _pendingRequests.any((req) => req['id'] == rideData['id']);
-          if (!alreadyExists) {
-            _pendingRequests.add(rideData);
-            notifyListeners();
+    if (token != null && user != null) {
+      if (user['driver'] == null) {
+        try {
+          final response = await ApiClient.get('/driver/profile');
+          if (response.statusCode == 200) {
+            final profileData = jsonDecode(response.body) as Map<String, dynamic>;
+            await LocalStorage.saveUser(profileData);
+            user = profileData;
           }
-        },
-      );
+        } catch (_) {}
+      }
+
+      final Map<String, dynamic>? currentUser = user;
+      if (currentUser != null) {
+        final driverData = currentUser['driver'];
+        if (driverData != null) {
+          _socketService.connect(token);
+          _socketService.subscribeToDriver(
+            driverData['id'] as int,
+            onRideRequested: (rideData) {
+              final alreadyExists = _pendingRequests.any((req) => req['id'] == rideData['id']);
+              if (!alreadyExists) {
+                _pendingRequests.add(rideData);
+                notifyListeners();
+              }
+            },
+          );
+        }
+      }
     }
   }
 
@@ -145,14 +162,17 @@ class DriverRideProvider extends ChangeNotifier {
   Future<bool> toggleOnlineStatus(bool online) async {
     try {
       final path = online ? '/driver/online' : '/driver/offline';
+      debugPrint('toggleOnlineStatus: calling $path');
       final response = await ApiClient.post(path, {});
+      debugPrint('toggleOnlineStatus response status: ${response.statusCode}');
+      debugPrint('toggleOnlineStatus response body: ${response.body}');
       if (response.statusCode == 200) {
         _isOnline = online;
         if (online) {
           _currentLat = 12.9716;
           _currentLng = 77.5946;
           await syncLocation(_currentLat, _currentLng);
-          _initSocketConnection();
+          await _initSocketConnection();
           startPolling();
         } else {
           _stopGpsTracking();
@@ -163,7 +183,10 @@ class DriverRideProvider extends ChangeNotifier {
         notifyListeners();
         return true;
       }
-    } catch (_) {}
+    } catch (e, stack) {
+      debugPrint('toggleOnlineStatus error: $e');
+      debugPrint('toggleOnlineStatus stack: $stack');
+    }
     return false;
   }
 

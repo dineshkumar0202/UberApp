@@ -43,142 +43,193 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.accentYellow,
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(flex: 2),
-              // Geometric "R" Logo
-              const GeometricRLogo(),
-              const SizedBox(height: 28),
-              
-              // Ridoo Brand Name
-              const Text(
-                'Ridoo',
-                style: TextStyle(
-                  fontSize: 42,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.charcoalBlack,
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(height: 12),
-              
-              // Tagline
-              const Text(
-                'Your Ride, Anytime, Anywhere',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  fontStyle: FontStyle.italic,
-                  color: AppColors.charcoalBlack,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const Spacer(),
-              
-              // Sleek White Sedan Graphic / Banner
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.directions_car_filled_rounded, color: AppColors.primary, size: 24),
-                    SizedBox(width: 10),
-                    Text(
-                      'Premium Sedan Service',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.charcoalBlack,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 48),
-            ],
+      backgroundColor: const Color(0xFFF7C815),
+      body: Stack(
+        children: [
+          // City Skyline silhouette at the bottom
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 180,
+            child: CustomPaint(
+              painter: CitySkylinePainter(color: Colors.black.withOpacity(0.08)),
+            ),
           ),
-        ),
+
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SteeringWheelLogo(size: 110),
+                const SizedBox(height: 28),
+                const Text(
+                  'Ridoo',
+                  style: TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Your Ride, Anytime, Anywhere',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black.withOpacity(0.6),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 48),
+                const SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class GeometricRLogo extends StatelessWidget {
-  const GeometricRLogo({super.key});
+// Steering Wheel Logo Drawing
+class SteeringWheelLogo extends StatelessWidget {
+  final double size;
+  const SteeringWheelLogo({super.key, this.size = 80});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 110,
-      height: 110,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-        color: AppColors.charcoalBlack,
-        borderRadius: BorderRadius.circular(28),
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(size * 0.28),
         boxShadow: [
           BoxShadow(
-            color: AppColors.charcoalBlack.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Center(
         child: CustomPaint(
-          size: const Size(60, 60),
-          painter: RLogoPainter(),
+          size: Size(size * 0.55, size * 0.55),
+          painter: SteeringWheelPainter(),
         ),
       ),
     );
   }
 }
 
-class RLogoPainter extends CustomPainter {
+class SteeringWheelPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.primary // Vivid Purple
+      ..color = const Color(0xFFF7C815)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 2;
+
+    // Outer circle
+    canvas.drawCircle(center, radius, paint);
+
+    // Inner center cap
+    final capPaint = Paint()
+      ..color = const Color(0xFFF7C815)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, radius * 0.25, capPaint);
+
+    // Spokes (left, right, bottom)
+    final spokePaint = Paint()
+      ..color = const Color(0xFFF7C815)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.5;
+
+    // Left spoke
+    canvas.drawLine(
+      Offset(center.dx - radius * 0.25, center.dy),
+      Offset(center.dx - radius, center.dy),
+      spokePaint,
+    );
+    // Right spoke
+    canvas.drawLine(
+      Offset(center.dx + radius * 0.25, center.dy),
+      Offset(center.dx + radius, center.dy),
+      spokePaint,
+    );
+    // Bottom spoke
+    canvas.drawLine(
+      Offset(center.dx, center.dy + radius * 0.25),
+      Offset(center.dx, center.dy + radius),
+      spokePaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// City Skyline silhouette painter
+class CitySkylinePainter extends CustomPainter {
+  final Color color;
+  CitySkylinePainter({this.color = const Color(0x33F5B041)});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
       ..style = PaintingStyle.fill;
 
-    // Draw the rounded loop and leg of R
-    final path = Path()
-      ..moveTo(12, 5)
-      ..lineTo(38, 5)
-      ..quadraticBezierTo(58, 18, 38, 32)
-      ..lineTo(24, 32)
-      ..lineTo(48, 55)
-      ..lineTo(32, 55)
-      ..lineTo(12, 32)
-      ..close();
-    
-    // Draw the vertical stem of R
-    final stemPath = Path()
-      ..moveTo(12, 5)
-      ..lineTo(24, 5)
-      ..lineTo(24, 55)
-      ..lineTo(12, 55)
-      ..close();
+    final path = Path();
+    final w = size.width;
+    final h = size.height;
+
+    path.moveTo(0, h);
+    path.lineTo(0, h * 0.75);
+    path.lineTo(w * 0.06, h * 0.75);
+    path.lineTo(w * 0.06, h * 0.6);
+    path.lineTo(w * 0.12, h * 0.6);
+    path.lineTo(w * 0.12, h * 0.85);
+    path.lineTo(w * 0.18, h * 0.85);
+    path.lineTo(w * 0.18, h * 0.5);
+    path.lineTo(w * 0.26, h * 0.5);
+    path.lineTo(w * 0.26, h * 0.8);
+    path.lineTo(w * 0.32, h * 0.8);
+    path.lineTo(w * 0.32, h * 0.4);
+    path.lineTo(w * 0.40, h * 0.4);
+    path.lineTo(w * 0.40, h * 0.9);
+    path.lineTo(w * 0.46, h * 0.9);
+    path.lineTo(w * 0.46, h * 0.3);
+    path.lineTo(w * 0.50, h * 0.15); // Spire tower
+    path.lineTo(w * 0.54, h * 0.3);
+    path.lineTo(w * 0.54, h * 0.85);
+    path.lineTo(w * 0.62, h * 0.85);
+    path.lineTo(w * 0.62, h * 0.45);
+    path.lineTo(w * 0.70, h * 0.45);
+    path.lineTo(w * 0.70, h * 0.8);
+    path.lineTo(w * 0.76, h * 0.8);
+    path.lineTo(w * 0.76, h * 0.55);
+    path.lineTo(w * 0.84, h * 0.55);
+    path.lineTo(w * 0.84, h * 0.9);
+    path.lineTo(w * 0.90, h * 0.9);
+    path.lineTo(w * 0.90, h * 0.65);
+    path.lineTo(w * 1.0, h * 0.65);
+    path.lineTo(w * 1.0, h);
+    path.close();
 
     canvas.drawPath(path, paint);
-    
-    final whitePaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    canvas.drawPath(stemPath, whitePaint);
   }
 
   @override

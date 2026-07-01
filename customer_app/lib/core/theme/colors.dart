@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Ridoo Brand Palette
-  static const Color primary = Color(0xFF6C4DFF); // Vivid Purple
-  static const Color secondary = Color(0xFF6C4DFF);
+  static const Color primary = Color(0xFFF7C815); // Vibrant Yellow
+  static const Color secondary = Color(0xFF121212); // Charcoal Black
   
   // Accents
-  static const Color accentYellow = Color(0xFFFFC107); // Vibrant Yellow
+  static const Color accentYellow = Color(0xFFF7C815); // Vibrant Yellow
   static const Color accentGreen = Color(0xFF25A365); // Emerald Green
   static const Color accentOrange = Color(0xFFFF5800); // Deep Orange
   static const Color charcoalBlack = Color(0xFF121212); // Charcoal Black

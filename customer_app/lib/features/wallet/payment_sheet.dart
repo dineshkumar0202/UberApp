@@ -50,9 +50,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
         cvv: _cvvController.text,
       );
     } else {
-      success = await provider.topUpWithRazorpay(
-        amount: widget.amount,
-      );
+      success = await provider.topUpWithRazorpay(amount: widget.amount);
     }
 
     if (mounted) {
@@ -107,7 +105,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Gateways selection
           Row(
             children: [
@@ -148,8 +146,9 @@ class _PaymentSheetState extends State<PaymentSheet> {
                       ),
                     ),
                     keyboardType: TextInputType.number,
-                    validator: (val) =>
-                        val == null || val.length < 16 ? 'Invalid card number' : null,
+                    validator: (val) => val == null || val.length < 16
+                        ? 'Invalid card number'
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -165,8 +164,9 @@ class _PaymentSheetState extends State<PaymentSheet> {
                             ),
                           ),
                           keyboardType: TextInputType.datetime,
-                          validator: (val) =>
-                              val == null || !val.contains('/') ? 'Required' : null,
+                          validator: (val) => val == null || !val.contains('/')
+                              ? 'Required'
+                              : null,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -238,7 +238,10 @@ class _PaymentSheetState extends State<PaymentSheet> {
                     )
                   : Text(
                       'Confirm Payment of ₹${widget.amount.toStringAsFixed(2)}',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
             ),
           ),
@@ -274,7 +277,11 @@ class _PaymentSheetState extends State<PaymentSheet> {
         ),
         child: Column(
           children: [
-            Icon(icon, size: 28, color: isSelected ? Colors.black : Colors.grey[400]),
+            Icon(
+              icon,
+              size: 28,
+              color: isSelected ? Colors.black : Colors.grey[400],
+            ),
             const SizedBox(height: 8),
             Text(
               label,

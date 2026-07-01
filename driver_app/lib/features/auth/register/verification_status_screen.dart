@@ -129,13 +129,13 @@ class _VerificationStatusScreenState extends State<VerificationStatusScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6C4DFF).withOpacity(0.05),
+                  color: const Color(0xFFF7C815).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF6C4DFF).withOpacity(0.15)),
+                  border: Border.all(color: Colors.black.withOpacity(0.15)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline_rounded, color: Color(0xFF6C4DFF), size: 20),
+                    const Icon(Icons.info_outline_rounded, color: Colors.black, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -163,8 +163,8 @@ class _VerificationStatusScreenState extends State<VerificationStatusScreen> {
                         )
                       : const Text('Simulate Approval & Enter'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6C4DFF),
-                    foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xFFF7C815),
+                    foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),

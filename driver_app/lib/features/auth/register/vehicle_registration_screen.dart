@@ -117,7 +117,7 @@ class _VehicleRegistrationScreenState extends State<VehicleRegistrationScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF6C4DFF), width: 2),
+                      borderSide: const BorderSide(color: Colors.black, width: 2),
                     ),
                   ),
                   validator: (value) {
@@ -144,7 +144,7 @@ class _VehicleRegistrationScreenState extends State<VehicleRegistrationScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF6C4DFF), width: 2),
+                      borderSide: const BorderSide(color: Colors.black, width: 2),
                     ),
                   ),
                   validator: (value) {
@@ -171,7 +171,7 @@ class _VehicleRegistrationScreenState extends State<VehicleRegistrationScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF6C4DFF), width: 2),
+                      borderSide: const BorderSide(color: Colors.black, width: 2),
                     ),
                   ),
                   validator: (value) {
@@ -190,8 +190,8 @@ class _VehicleRegistrationScreenState extends State<VehicleRegistrationScreen> {
                   child: ElevatedButton(
                     onPressed: _proceed,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6C4DFF),
-                      foregroundColor: Colors.white,
+                      backgroundColor: const Color(0xFFF7C815),
+                      foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -218,7 +218,7 @@ class _VehicleRegistrationScreenState extends State<VehicleRegistrationScreen> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF6C4DFF) : Colors.grey[200],
+            color: isActive ? Colors.black : Colors.grey[200],
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -237,7 +237,7 @@ class _VehicleRegistrationScreenState extends State<VehicleRegistrationScreen> {
           style: TextStyle(
             fontSize: 11,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            color: isActive ? const Color(0xFF6C4DFF) : Colors.grey[500],
+            color: isActive ? Colors.black : Colors.grey[500],
           ),
         ),
       ],
@@ -248,7 +248,7 @@ class _VehicleRegistrationScreenState extends State<VehicleRegistrationScreen> {
     return Expanded(
       child: Container(
         height: 2,
-        color: isDone ? const Color(0xFF6C4DFF) : Colors.grey[200],
+        color: isDone ? Colors.black : Colors.grey[200],
         margin: const EdgeInsets.only(bottom: 16),
       ),
     );
@@ -267,24 +267,24 @@ class _VehicleRegistrationScreenState extends State<VehicleRegistrationScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? const Color(0xFF6C4DFF) : Colors.grey[200]!,
+            color: isSelected ? Colors.black : Colors.grey[200]!,
             width: isSelected ? 2 : 1,
           ),
-          color: isSelected ? const Color(0xFF6C4DFF).withOpacity(0.05) : Colors.grey[50],
+          color: isSelected ? const Color(0xFFF7C815).withOpacity(0.15) : Colors.grey[50],
         ),
         child: Column(
           children: [
             Icon(
               icon,
               size: 28,
-              color: isSelected ? const Color(0xFF6C4DFF) : Colors.grey[500],
+              color: isSelected ? Colors.black : Colors.grey[500],
             ),
             const SizedBox(height: 8),
             Text(
               label,
               style: TextStyle(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? const Color(0xFF6C4DFF) : Colors.grey[700],
+                color: isSelected ? Colors.black : Colors.grey[700],
                 fontSize: 13,
               ),
             ),

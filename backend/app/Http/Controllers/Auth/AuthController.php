@@ -37,7 +37,7 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'fcm_token' => $validated['fcm_token'] ?? null,
-            'phone_verified_at' => now(), // Assume phone was verified via OTP prior to registration
+            'phone_verified_at' => now(), // Assume email was verified
         ]);
 
         // Always create a wallet for the user
@@ -73,12 +73,20 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'phone' => ['required', 'string'],
+            'email' => ['nullable', 'email'],
+            'phone' => ['nullable', 'string'],
             'password' => ['required', 'string'],
             'fcm_token' => ['nullable', 'string'],
         ]);
 
-        $user = User::where('phone', $validated['phone'])->first();
+        $user = null;
+        if (!empty($validated['email'])) {
+            $user = User::where('email', $validated['email'])->first();
+        } elseif (!empty($validated['phone'])) {
+            $user = User::where('phone', $validated['phone'])->first();
+        } else {
+            return response()->json(['message' => 'Please provide an email or phone number.'], 422);
+        }
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
             return response()->json(['message' => 'Invalid credentials.'], 401);
@@ -96,6 +104,7 @@ class AuthController extends Controller
             $user->update($updateData);
         }
 
+        $user->load(['wallet', 'driver']);
         $token = $user->createToken('auth')->plainTextToken;
 
         return response()->json([
@@ -146,6 +155,7 @@ class AuthController extends Controller
         }
         $user->update($updateData);
 
+        $user->load(['wallet', 'driver']);
         $token = $user->createToken('auth')->plainTextToken;
 
         return response()->json([

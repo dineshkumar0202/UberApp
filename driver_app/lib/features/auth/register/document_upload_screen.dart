@@ -37,7 +37,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
     Future.delayed(const Duration(milliseconds: 800), () {
       if (mounted) {
         setState(() {
-          _uploadedDocs[docKey] = '${docKey}_doc.jpg';
+          _uploadedDocs[docKey] = '${docKey}_document.pdf';
         });
       }
     });
@@ -102,7 +102,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Upload clear photos of your required verification documents.',
+                'Upload clear verification documents in PDF format.',
                 style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
               const SizedBox(height: 28),
@@ -111,32 +111,32 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
               _buildUploadBox(
                 'license',
                 'Driver\'s License',
-                'Upload a clear photo of your driver license front.',
-                Icons.badge_outlined,
+                'Upload your driver license front in PDF format.',
+                Icons.picture_as_pdf_rounded,
               ),
               const SizedBox(height: 16),
 
               _buildUploadBox(
                 'insurance',
                 'Vehicle Insurance Policy',
-                'Document containing active third-party coverage details.',
-                Icons.security_outlined,
+                'Upload active policy coverage details in PDF format.',
+                Icons.picture_as_pdf_rounded,
               ),
               const SizedBox(height: 16),
 
               _buildUploadBox(
                 'id_card',
                 'Aadhaar Card / ID Proof',
-                'National ID proof for identity validation.',
-                Icons.assignment_ind_outlined,
+                'Upload national identity proof PDF.',
+                Icons.picture_as_pdf_rounded,
               ),
               const SizedBox(height: 16),
 
               _buildUploadBox(
                 'rc_book',
                 'RC Book / Logbook',
-                'Proof of vehicle ownership and valid registration.',
-                Icons.receipt_long_outlined,
+                'Upload vehicle registration book in PDF format.',
+                Icons.picture_as_pdf_rounded,
               ),
               const SizedBox(height: 40),
 
@@ -147,8 +147,8 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                 child: ElevatedButton(
                   onPressed: (_isAllUploaded && !_isSubmitting) ? _submit : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6C4DFF),
-                    foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xFFF7C815),
+                    foregroundColor: Colors.black,
                     disabledBackgroundColor: Colors.grey[200],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -160,16 +160,16 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: Colors.black,
                             strokeWidth: 2.5,
                           ),
                         )
                       : Text(
-                          _isAllUploaded ? 'Submit for Verification' : 'Upload All Documents',
+                          _isAllUploaded ? 'Submit for Verification' : 'Upload All PDF Documents',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: _isAllUploaded ? Colors.white : Colors.grey[400],
+                            color: _isAllUploaded ? Colors.black : Colors.grey[400],
                           ),
                         ),
                 ),
@@ -190,7 +190,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
           decoration: BoxDecoration(
             color: isDone
                 ? const Color(0xFF25A365)
-                : (isActive ? const Color(0xFF6C4DFF) : Colors.grey[200]),
+                : (isActive ? Colors.black : Colors.grey[200]),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -213,7 +213,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
             color: isDone
                 ? const Color(0xFF25A365)
-                : (isActive ? const Color(0xFF6C4DFF) : Colors.grey[500]),
+                : (isActive ? Colors.black : Colors.grey[500]),
           ),
         ),
       ],
@@ -244,12 +244,12 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
           border: Border.all(
             color: isUploaded
                 ? const Color(0xFF25A365)
-                : (isUploading ? const Color(0xFF6C4DFF) : Colors.grey[200]!),
+                : (isUploading ? Colors.black : Colors.grey[200]!),
             width: isUploaded || isUploading ? 2 : 1,
           ),
           color: isUploaded
               ? const Color(0xFF25A365).withOpacity(0.02)
-              : (isUploading ? const Color(0xFF6C4DFF).withOpacity(0.02) : Colors.grey[50]),
+              : (isUploading ? Colors.black.withOpacity(0.02) : Colors.grey[50]),
         ),
         child: Row(
           children: [
@@ -278,7 +278,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    isUploaded ? 'Document Uploaded Successfully' : subtitle,
+                    isUploaded ? '$status (Ready)' : subtitle,
                     style: TextStyle(
                       color: isUploaded ? const Color(0xFF25A365) : Colors.grey[500],
                       fontSize: 12,
@@ -293,7 +293,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
               const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF6C4DFF)),
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
               )
             else if (isUploaded)
               const Icon(Icons.check_circle, color: Color(0xFF25A365), size: 24)

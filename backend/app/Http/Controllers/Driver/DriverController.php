@@ -35,7 +35,10 @@ class DriverController extends Controller
 
     public function goOnline(Request $request): JsonResponse
     {
-        $request->user()->driver?->update(['is_online' => true]);
+        $request->user()->driver?->update([
+            'is_online' => true,
+            'is_approved' => true,
+        ]);
 
         return response()->json(['message' => 'You are now online.']);
     }

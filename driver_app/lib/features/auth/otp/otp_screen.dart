@@ -117,6 +117,7 @@ class _OtpScreenState extends State<OtpScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -135,16 +136,17 @@ class _OtpScreenState extends State<OtpScreen> {
               children: [
                 const SizedBox(height: 16),
                 const Text(
-                  'Verify Number',
+                  'Phone Verification',
                   style: TextStyle(
                     fontSize: 28,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
                     letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'We sent a 6-digit code to ${widget.phone}. Enter it below to verify.',
+                  'Enter your OTP code here sent to ${widget.phone}',
                   style: TextStyle(
                     fontSize: 15,
                     color: Colors.grey[600],
@@ -158,20 +160,24 @@ class _OtpScreenState extends State<OtpScreen> {
                   keyboardType: TextInputType.number,
                   maxLength: 6,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 8),
+                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, letterSpacing: 8),
                   decoration: InputDecoration(
                     counterText: '',
-                    hintText: '123456',
-                    hintStyle: TextStyle(color: Colors.grey[300]),
+                    hintText: '• • • • • •',
+                    hintStyle: TextStyle(color: Colors.grey[300], letterSpacing: 8),
                     filled: true,
-                    fillColor: Colors.grey[100],
+                    fillColor: Colors.grey[50],
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.grey[200]!, width: 1.5),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF6C4DFF), width: 2),
+                      borderSide: const BorderSide(color: Colors.black, width: 2),
                     ),
                   ),
                   validator: (value) {
@@ -188,7 +194,7 @@ class _OtpScreenState extends State<OtpScreen> {
                   child: _canResend
                       ? TextButton(
                           onPressed: _resendCode,
-                          style: TextButton.styleFrom(foregroundColor: const Color(0xFF6C4DFF)),
+                          style: TextButton.styleFrom(foregroundColor: Colors.black87),
                           child: const Text(
                             'Resend Code',
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
@@ -204,15 +210,15 @@ class _OtpScreenState extends State<OtpScreen> {
                 ),
                 const Spacer(),
 
-                // Action Button
+                // Yellow VERIFY NOW Action Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
                     onPressed: authProvider.isLoading ? null : _verify,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6C4DFF),
-                      foregroundColor: Colors.white,
+                      backgroundColor: const Color(0xFFF7C815),
+                      foregroundColor: Colors.black,
                       disabledBackgroundColor: Colors.grey[300],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -225,19 +231,20 @@ class _OtpScreenState extends State<OtpScreen> {
                             height: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                             ),
                           )
                         : const Text(
-                            'Verify & Proceed',
+                            'VERIFY NOW',
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
                             ),
                           ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
               ],
             ),
           ),

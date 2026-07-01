@@ -159,11 +159,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     TextFormField(
                       controller: _nameController,
                       enabled: _isEditing,
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 15),
                       decoration: InputDecoration(
                         labelText: 'Full Name',
-                        prefixIcon: const Icon(Icons.person_outline_rounded),
+                        labelStyle: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w600),
+                        prefixIcon: const Icon(Icons.person_outline_rounded, color: Colors.black54),
                         filled: true,
-                        fillColor: _isEditing ? Colors.grey[50] : Colors.grey[100],
+                        fillColor: _isEditing ? Colors.grey[50] : Colors.grey[200],
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                       ),
                       validator: (val) => val == null || val.trim().isEmpty ? 'Enter your name' : null,
@@ -172,11 +174,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     TextFormField(
                       controller: _emailController,
                       enabled: _isEditing,
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 15),
                       decoration: InputDecoration(
                         labelText: 'Email Address',
-                        prefixIcon: const Icon(Icons.email_outlined),
+                        labelStyle: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w600),
+                        prefixIcon: const Icon(Icons.email_outlined, color: Colors.black54),
                         filled: true,
-                        fillColor: _isEditing ? Colors.grey[50] : Colors.grey[100],
+                        fillColor: _isEditing ? Colors.grey[50] : Colors.grey[200],
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                       ),
                       validator: (val) {
@@ -279,29 +283,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 12),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('No Connection Screen', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-                    trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+                    title: const Text('No Connection Screen', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87)),
+                    trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black38),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NoInternetScreen())),
                   ),
                   const Divider(height: 12),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('System Maintenance Screen', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-                    trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+                    title: const Text('System Maintenance Screen', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87)),
+                    trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black38),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MaintenanceScreen())),
                   ),
                   const Divider(height: 12),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('GPS Permission Screen', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-                    trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+                    title: const Text('GPS Permission Screen', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87)),
+                    trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black38),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocationPermissionScreen())),
                   ),
                   const Divider(height: 12),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('App Update Screen', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-                    trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+                    title: const Text('App Update Screen', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87)),
+                    trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black38),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ForceUpdateScreen())),
                   ),
                 ],
@@ -318,8 +322,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final isSelected = _selectedLanguage == lang;
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text(lang, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-      trailing: isSelected ? const Icon(Icons.check_circle_rounded, color: AppColors.primary) : null,
+      title: Text(lang, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87)),
+      trailing: isSelected ? const Icon(Icons.check_circle_rounded, color: Colors.green) : null,
       onTap: () {
         setState(() {
           _selectedLanguage = lang;
@@ -328,7 +332,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SnackBar(
             content: Text('Language changed to $lang'),
             duration: const Duration(seconds: 1),
-            backgroundColor: AppColors.primary,
+            backgroundColor: Colors.black,
           ),
         );
       },
@@ -339,12 +343,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: TextStyle(color: Colors.grey[700], fontSize: 14)),
+        Text(title, style: const TextStyle(color: Colors.black54, fontSize: 14)),
         Text(
           value,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: isLink ? AppColors.primary : AppColors.charcoalBlack,
+            color: isLink ? Colors.blue : Colors.black87,
             fontSize: 14,
           ),
         ),

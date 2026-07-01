@@ -9,8 +9,23 @@ final ThemeData lightTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     seedColor: AppColors.primary,
     brightness: Brightness.light,
+  ).copyWith(
+    primary: Colors.black,
+    onPrimary: Colors.white,
+    secondary: Colors.black87,
+    onSecondary: Colors.white,
   ),
-  textTheme: AppTypography.textTheme,
+  textTheme: AppTypography.textTheme.apply(
+    bodyColor: Colors.black87,
+    displayColor: Colors.black,
+  ),
+  inputDecorationTheme: InputDecorationTheme(
+    labelStyle: const TextStyle(color: Colors.black54),
+    floatingLabelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+    hintStyle: const TextStyle(color: Colors.grey),
+    iconColor: Colors.black54,
+    prefixIconColor: Colors.black54,
+  ),
   elevatedButtonTheme: AppButtonTheme.elevated,
   scaffoldBackgroundColor: AppColors.backgroundLight,
 );

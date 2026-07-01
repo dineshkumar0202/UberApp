@@ -33,7 +33,7 @@ class AuthService {
   Future<Map<String, dynamic>> register({
     required String name,
     required String email,
-    required String phone,
+    String? phone,
     required String password,
     required String role,
     String? fcmToken,
@@ -41,7 +41,7 @@ class AuthService {
     final response = await ApiClient.post('/auth/register', {
       'name': name,
       'email': email,
-      'phone': phone,
+      if (phone != null) 'phone': phone,
       'password': password,
       'role': role,
       'fcm_token': fcmToken,
@@ -55,9 +55,15 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> login(String phone, String password, String? fcmToken) async {
+  Future<Map<String, dynamic>> login({
+    String? email,
+    String? phone,
+    required String password,
+    String? fcmToken,
+  }) async {
     final response = await ApiClient.post('/auth/login', {
-      'phone': phone,
+      if (email != null) 'email': email,
+      if (phone != null) 'phone': phone,
       'password': password,
       'fcm_token': fcmToken,
     });
